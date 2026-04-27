@@ -12,7 +12,8 @@ import java.util.Set;
 public final class TrainingSessionTest {
     @Test
     public void scoresCorrectStableNoteAndAdvancesTarget() {
-        TrainingSession session = new TrainingSession(new FixedRandom(5, 6));
+        TrainingSession session = new TrainingSession(new FixedRandom(5, 5));
+        session.setMode(TrainingSession.Mode.COMMON_NOTES);
         assertEquals("C3", session.target().displayName());
 
         DetectedPitch pitch = DetectedPitch.pitched(130.81f, 0.9f, 0.2f);
@@ -41,7 +42,8 @@ public final class TrainingSessionTest {
 
     @Test
     public void scoresTargetWhenDetectorReportsTargetHarmonic() {
-        TrainingSession session = new TrainingSession(new FixedRandom(5, 6));
+        TrainingSession session = new TrainingSession(new FixedRandom(5, 5));
+        session.setMode(TrainingSession.Mode.COMMON_NOTES);
         assertEquals("C3", session.target().displayName());
 
         DetectedPitch harmonic = DetectedPitch.pitched(261.62f, 0.95f, 0.2f);
@@ -57,7 +59,8 @@ public final class TrainingSessionTest {
 
     @Test
     public void scoresWrongStableNoteWithoutAdvancingTarget() {
-        TrainingSession session = new TrainingSession(new FixedRandom(5, 6));
+        TrainingSession session = new TrainingSession(new FixedRandom(5, 5));
+        session.setMode(TrainingSession.Mode.COMMON_NOTES);
         assertEquals("C3", session.target().displayName());
 
         DetectedPitch pitch = DetectedPitch.pitched(196f, 0.9f, 0.2f);

@@ -11,7 +11,7 @@ final class TrainingSession {
 
     private final Random random;
 
-    private Mode mode = Mode.COMMON_NOTES;
+    private Mode mode = Mode.OPEN_STRINGS;
     private NoteName target;
     private int correct;
     private int attempts;
