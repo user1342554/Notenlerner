@@ -1,3 +1,78 @@
 <resources>
     <string name="app_name">Notenlerner</string>
+
+    <!-- Home -->
+    <string name="home_eyebrow">Heute · Tag %1$d</string>
+    <string name="home_subtitle">Wähle eine Übung</string>
+    <string name="home_stat_accuracy">Genauigkeit</string>
+    <string name="home_stat_hits">Treffer</string>
+    <string name="home_stat_streak">Serie</string>
+    <string name="home_recent_today">Heute geübt</string>
+    <string name="home_recent_detail">12 Min · 38 Noten · 87%% korrekt</string>
+
+    <!-- Tiles -->
+    <string name="tile_trainer">Notenlehrer</string>
+    <string name="tile_trainer_sub">Noten lesen &amp; spielen</string>
+    <string name="tile_tuner">Stimmgerät</string>
+    <string name="tile_tuner_sub">E A D G B E</string>
+    <string name="tile_pentatonik">Pentatonik</string>
+    <string name="tile_pentatonik_sub">Tonleitern üben</string>
+    <string name="tile_finger">Fingerübungen</string>
+    <string name="tile_finger_sub">Geläufigkeit aufbauen</string>
+
+    <!-- Common -->
+    <string name="back_home">Home</string>
+    <string name="mic_on">Mic</string>
+    <string name="mic_off">Aus</string>
+
+    <!-- Trainer -->
+    <string name="trainer_target_label">Zielnote</string>
+    <string name="trainer_play_correct">♪ Richtig spielen</string>
+    <string name="trainer_play_wrong">♪ Falsch spielen</string>
+    <string name="trainer_btn_start">Start</string>
+    <string name="trainer_btn_stop">Stop</string>
+    <string name="trainer_btn_next">Weiter</string>
+    <string name="trainer_btn_reset">Reset</string>
+    <string name="trainer_status_play">Spiele die Zielnote</string>
+    <string name="trainer_status_paused">Pausiert</string>
+
+    <!-- Tuner -->
+    <string name="tuner_standard">Standard</string>
+    <string name="tuner_label_default">Spiele eine leere Saite</string>
+    <string name="tuner_waiting">Warte auf Ton</string>
+    <string name="tuner_in_tune">Stimmt</string>
+    <string name="tuner_too_low">Zu tief</string>
+    <string name="tuner_too_high">Zu hoch</string>
+    <string name="tuner_freq_label">Frequenz</string>
+    <string name="tuner_target_label">Ziel</string>
+    <string name="tuner_section_strings">Standard · E A D G B E</string>
+    <string name="tuner_tap_string">Tippe eine Saite, um sie zu prüfen</string>
+
+    <!-- Pentatonik -->
+    <string name="pent_eyebrow">Tonleiter</string>
+    <string name="pent_minor">Moll</string>
+    <string name="pent_major">Dur</string>
+    <string name="pent_root">Grundton</string>
+    <string name="pent_position">Position</string>
+    <string name="pent_bpm">BPM</string>
+    <string name="pent_start">▶ Üben starten</string>
+    <string name="pent_pause">⏸ Pausieren</string>
+    <string name="pent_position_btn">Position</string>
+
+    <!-- Finger -->
+    <string name="finger_pattern">Muster</string>
+    <string name="finger_tempo">Tempo</string>
+    <string name="finger_start">▶  Übung starten</string>
+    <string name="finger_pause">⏸  Pausieren</string>
+
+    <!-- Permission -->
+    <string name="perm_required">Mikrofonberechtigung benötigt</string>
+
+    <!-- Difficulty -->
+    <string name="mode_open_strings">Leere Saiten</string>
+    <string name="mode_cmajor_start">C-Dur (Anfang)</string>
+    <string name="mode_cmajor_full">C-Dur (komplett)</string>
+    <string name="mode_common">Häufige Noten</string>
+    <string name="mode_frets_0_5">Bünde 0–5</string>
+    <string name="mode_frets_0_12">Bünde 0–12</string>
 </resources>
