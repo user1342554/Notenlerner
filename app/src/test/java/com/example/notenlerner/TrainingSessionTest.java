@@ -1,10 +1,13 @@
 package com.example.notenlerner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public final class TrainingSessionTest {
     @Test
@@ -70,13 +73,35 @@ public final class TrainingSessionTest {
     }
 
     @Test
-    public void difficultyChangesTargetPoolAndResetsScore() {
+    public void modeChangesTargetPoolAndResetsScore() {
         TrainingSession session = new TrainingSession(new FixedRandom(0));
-        session.setDifficulty(TrainingSession.Difficulty.HARD);
+        session.setMode(TrainingSession.Mode.FRETS_0_12);
 
+        // Constructor seeded target to MIDI 40 (E2). setMode triggers reset → nextTarget,
+        // which sees the duplicate and bumps to notes[1] = 41 (F2) under FRETS_0_12.
         assertEquals("F2", session.target().displayName());
         assertEquals(0, session.correct());
         assertEquals(0, session.attempts());
+    }
+
+    @Test
+    public void openStringsModeOnlyDrawsOpenStringNotes() {
+        TrainingSession session = new TrainingSession(new Random(42));
+        session.setMode(TrainingSession.Mode.OPEN_STRINGS);
+
+        Set<Integer> allowed = new HashSet<>();
+        allowed.add(40); // E2
+        allowed.add(45); // A2
+        allowed.add(50); // D3
+        allowed.add(55); // G3
+        allowed.add(59); // B3
+        allowed.add(64); // E4
+
+        for (int i = 0; i < 30; i++) {
+            int midi = session.target().midiNumber;
+            assertTrue("target MIDI " + midi + " not in open-strings set", allowed.contains(midi));
+            session.skip();
+        }
     }
 
     private static final class FixedRandom extends Random {
