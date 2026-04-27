@@ -1,3 +1,32 @@
 <resources>
-    <color name="background">#101418</color>
+    <!-- Notenlerner — design tokens (Apple-like dark mode) -->
+    <!-- Surfaces -->
+    <color name="bg_0">#FF000000</color>
+    <color name="bg_1">#FF0B0B0D</color>
+    <color name="bg_2">#FF131316</color>
+    <color name="bg_3">#FF1C1C1F</color>
+    <color name="bg_elev">#FF202024</color>
+    <color name="hairline">#14FFFFFF</color>
+    <color name="hairline_strong">#24FFFFFF</color>
+
+    <!-- Text -->
+    <color name="fg_0">#FFF5F5F7</color>
+    <color name="fg_1">#D9EBEBF5</color>
+    <color name="fg_2">#99EBEBF5</color>
+    <color name="fg_3">#61EBEBF5</color>
+
+    <!-- Accents -->
+    <color name="mint">#FF30D9A8</color>
+    <color name="mint_dim">#2E30D9A8</color>
+    <color name="amber">#FFFFC857</color>
+    <color name="amber_dim">#2EFFC857</color>
+    <color name="coral">#FFFF6F6F</color>
+    <color name="coral_dim">#2EFF6F6F</color>
+    <color name="blue">#FF0A84FF</color>
+    <color name="blue_dim">#2E0A84FF</color>
+    <color name="violet">#FFBF7BFF</color>
+    <color name="violet_dim">#2EBF7BFF</color>
+
+    <!-- Legacy alias -->
+    <color name="background">#FF000000</color>
 </resources>

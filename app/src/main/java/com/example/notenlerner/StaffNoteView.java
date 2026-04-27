@@ -7,6 +7,10 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.view.View;
 
+/**
+ * Music staff renderer for the Notenlehrer screen.
+ * Apple-like dark mode: hairline staff on transparent surface, off-white note head, treble clef.
+ */
 final class StaffNoteView extends View {
     private static final int[] NOTE_LETTER_INDEX = new int[128];
 
@@ -23,37 +27,43 @@ final class StaffNoteView extends View {
         NOTE_LETTER_INDEX['B'] = 6;
     }
 
+    private static final int TARGET_COLOR = 0xFFF5F5F7;
+
     private final Paint staffPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint notePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint noteStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint paperPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint stemPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint clefPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint accidentalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF noteOval = new RectF();
-    private final RectF paperRect = new RectF();
 
     private NoteName note;
+    private NoteName playedNote;
+    private int playedColor = TARGET_COLOR;
 
     StaffNoteView(Context context) {
         super(context);
-        staffPaint.setColor(0xFF20272D);
-        staffPaint.setStrokeWidth(dp(2));
+        // Staff lines — fg_1 at ~85% white
+        staffPaint.setColor(0xD9F5F5F7);
+        staffPaint.setStrokeWidth(dp(1.4f));
         staffPaint.setStyle(Paint.Style.STROKE);
         staffPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        notePaint.setColor(0xFF111820);
+        // Note head — fg_0
+        notePaint.setColor(0xFFF5F5F7);
         notePaint.setStyle(Paint.Style.FILL);
 
-        noteStrokePaint.setColor(0xFF111820);
-        noteStrokePaint.setStrokeWidth(dp(2));
-        noteStrokePaint.setStyle(Paint.Style.STROKE);
-        noteStrokePaint.setStrokeCap(Paint.Cap.ROUND);
+        stemPaint.setColor(0xFFF5F5F7);
+        stemPaint.setStrokeWidth(dp(1.8f));
+        stemPaint.setStyle(Paint.Style.STROKE);
+        stemPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        paperPaint.setColor(0xFFF3EFE5);
-        paperPaint.setStyle(Paint.Style.FILL);
+        clefPaint.setColor(0xFFF5F5F7);
+        clefPaint.setTextAlign(Paint.Align.CENTER);
+        clefPaint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.NORMAL));
 
-        textPaint.setColor(0xFF111820);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setFakeBoldText(true);
+        accidentalPaint.setColor(0xFFF5F5F7);
+        accidentalPaint.setTextAlign(Paint.Align.CENTER);
+        accidentalPaint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.BOLD));
     }
 
     void setNote(NoteName note) {
@@ -61,10 +71,23 @@ final class StaffNoteView extends View {
         invalidate();
     }
 
+    void setPlayedNote(NoteName note, int color) {
+        this.playedNote = note;
+        this.playedColor = color;
+        invalidate();
+    }
+
+    void clearPlayedNote() {
+        if (this.playedNote != null) {
+            this.playedNote = null;
+            invalidate();
+        }
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int desiredHeight = dp(158);
+        int desiredHeight = dp(200);
         int height = resolveSize(desiredHeight, heightMeasureSpec);
         setMeasuredDimension(width, height);
     }
@@ -73,60 +96,65 @@ final class StaffNoteView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         int width = getWidth();
-        paperRect.set(dp(4), dp(8), width - dp(4), getHeight() - dp(8));
-        canvas.drawRoundRect(paperRect, dp(8), dp(8), paperPaint);
+        int height = getHeight();
 
-        float lineSpacing = dp(13);
+        float lineSpacing = dp(14);
         float halfSpacing = lineSpacing / 2f;
-        float left = dp(20);
+        float left = dp(28);
         float right = width - dp(20);
-        float topLineY = getHeight() / 2f - lineSpacing * 2f;
+        float topLineY = height / 2f - lineSpacing * 2f - dp(6);
         float bottomLineY = topLineY + lineSpacing * 4f;
 
-        int stepsAboveBottomLine = 0;
-        if (note != null) {
-            int writtenMidi = note.midiNumber + 12;
-            int letterIndex = letterIndex(note.name.charAt(0));
-            int writtenOctave = writtenMidi / 12 - 1;
-            int bottomLineIndex = 4 * 7 + letterIndex('E');
-            int writtenDiatonicIndex = writtenOctave * 7 + letterIndex;
-            stepsAboveBottomLine = writtenDiatonicIndex - bottomLineIndex;
-
-            float rawNoteY = bottomLineY - stepsAboveBottomLine * halfSpacing;
-            float minNoteY = paperRect.top + dp(28);
-            float maxNoteY = paperRect.bottom - dp(28);
-            float shift = clamp(rawNoteY, minNoteY, maxNoteY) - rawNoteY;
-            topLineY += shift;
-            bottomLineY += shift;
-        }
-
+        // 5 staff lines
         for (int i = 0; i < 5; i++) {
             float y = topLineY + i * lineSpacing;
             canvas.drawLine(left, y, right, y, staffPaint);
         }
 
-        textPaint.setTextSize(dp(48));
-        textPaint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.NORMAL));
-        textPaint.setColor(0xFF111820);
-        canvas.drawText("𝄞", left + dp(44), bottomLineY + dp(3), textPaint);
+        // Treble clef
+        clefPaint.setTextSize(dp(56));
+        canvas.drawText("𝄞", left + dp(18), bottomLineY + dp(6), clefPaint);
 
-        if (note == null) {
-            return;
+        float targetCenterX = width * 0.62f;
+
+        // Played note: draw to the LEFT of the target so the user can compare positions.
+        // Drawn first so the (white) target glyph wins any overlap.
+        if (playedNote != null) {
+            float playedCenterX = targetCenterX - dp(48);
+            drawNoteAt(canvas, playedNote, playedCenterX, playedColor,
+                    topLineY, bottomLineY, lineSpacing, halfSpacing);
         }
 
-        float noteCenterX = width * 0.62f;
-        float noteCenterY = bottomLineY - stepsAboveBottomLine * halfSpacing;
-        drawLedgerLines(canvas, noteCenterX, noteCenterY, topLineY, bottomLineY, lineSpacing, halfSpacing);
-        drawNoteHead(canvas, noteCenterX, noteCenterY, lineSpacing);
+        if (note != null) {
+            drawNoteAt(canvas, note, targetCenterX, TARGET_COLOR,
+                    topLineY, bottomLineY, lineSpacing, halfSpacing);
+        }
+    }
 
-        if (note.name.contains("#")) {
-            textPaint.setTextSize(dp(32));
-            textPaint.setTypeface(Typeface.DEFAULT_BOLD);
-            textPaint.setColor(0xFF111820);
-            canvas.drawText("♯", noteCenterX - dp(42), noteCenterY + dp(11), textPaint);
+    private void drawNoteAt(Canvas canvas, NoteName n, float centerX, int color,
+                            float topLineY, float bottomLineY,
+                            float lineSpacing, float halfSpacing) {
+        int writtenMidi = n.midiNumber + 12;
+        int letterIndex = letterIndex(n.name.charAt(0));
+        int writtenOctave = writtenMidi / 12 - 1;
+        int bottomLineIndex = 4 * 7 + letterIndex('E');
+        int writtenDiatonicIndex = writtenOctave * 7 + letterIndex;
+        int stepsAboveBottomLine = writtenDiatonicIndex - bottomLineIndex;
+        float centerY = bottomLineY - stepsAboveBottomLine * halfSpacing;
+
+        notePaint.setColor(color);
+        stemPaint.setColor(color);
+        accidentalPaint.setColor(color);
+
+        drawLedgerLines(canvas, centerX, centerY, topLineY, bottomLineY, lineSpacing, halfSpacing);
+
+        if (n.name.contains("#")) {
+            accidentalPaint.setTextSize(dp(26));
+            canvas.drawText("♯", centerX - dp(28), centerY + dp(6), accidentalPaint);
         }
 
-        drawStem(canvas, noteCenterX, noteCenterY, bottomLineY);
+        drawNoteHead(canvas, centerX, centerY);
+        drawStem(canvas, centerX, centerY, topLineY, bottomLineY);
     }
 
     private void drawLedgerLines(
@@ -138,7 +166,7 @@ final class StaffNoteView extends View {
             float lineSpacing,
             float halfSpacing
     ) {
-        float ledgerHalfWidth = dp(28);
+        float ledgerHalfWidth = dp(20);
         if (noteCenterY < topLineY) {
             for (float y = topLineY - lineSpacing; y >= noteCenterY - halfSpacing; y -= lineSpacing) {
                 canvas.drawLine(noteCenterX - ledgerHalfWidth, y, noteCenterX + ledgerHalfWidth, y, staffPaint);
@@ -150,28 +178,30 @@ final class StaffNoteView extends View {
         }
     }
 
-    private void drawNoteHead(Canvas canvas, float centerX, float centerY, float lineSpacing) {
+    private void drawNoteHead(Canvas canvas, float centerX, float centerY) {
+        // Slanted oval — design uses rotate(-22deg)
         noteOval.set(
-                centerX - lineSpacing * 0.9f,
-                centerY - lineSpacing * 0.58f,
-                centerX + lineSpacing * 0.9f,
-                centerY + lineSpacing * 0.58f
+                centerX - dp(9.5f),
+                centerY - dp(6.8f),
+                centerX + dp(9.5f),
+                centerY + dp(6.8f)
         );
         canvas.save();
-        canvas.rotate(-18f, centerX, centerY);
+        canvas.rotate(-22f, centerX, centerY);
         canvas.drawOval(noteOval, notePaint);
-        canvas.drawOval(noteOval, noteStrokePaint);
         canvas.restore();
     }
 
-    private void drawStem(Canvas canvas, float centerX, float centerY, float bottomLineY) {
-        float stemHeight = dp(58);
-        float x = centerX + dp(14);
-        if (centerY < bottomLineY - dp(16)) {
-            x = centerX - dp(14);
-            canvas.drawLine(x, centerY, x, centerY + stemHeight, noteStrokePaint);
+    private void drawStem(Canvas canvas, float centerX, float centerY, float topLineY, float bottomLineY) {
+        float middleY = (topLineY + bottomLineY) / 2f;
+        // Notes below middle line: stem up (right side); above: stem down (left side)
+        boolean stemUp = centerY > middleY - dp(3);
+        if (stemUp) {
+            float x = centerX + dp(8.5f);
+            canvas.drawLine(x, centerY - dp(1), x, centerY - dp(44), stemPaint);
         } else {
-            canvas.drawLine(x, centerY, x, centerY - stemHeight, noteStrokePaint);
+            float x = centerX - dp(8.5f);
+            canvas.drawLine(x, centerY + dp(1), x, centerY + dp(44), stemPaint);
         }
     }
 
@@ -182,11 +212,11 @@ final class StaffNoteView extends View {
         return 0;
     }
 
-    private int dp(int value) {
-        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    private float dp(float value) {
+        return value * getResources().getDisplayMetrics().density;
     }
 
-    private float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 }
