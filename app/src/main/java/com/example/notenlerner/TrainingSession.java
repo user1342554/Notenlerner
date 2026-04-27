@@ -11,10 +11,11 @@ final class TrainingSession {
 
     private final Random random;
 
-    private Difficulty difficulty = Difficulty.BEGINNER;
+    private Mode mode = Mode.COMMON_NOTES;
     private NoteName target;
     private int correct;
     private int attempts;
+    private int streak;
     private int lastMidi = -1;
     private int stableFrames;
     private boolean armed = true;
@@ -43,24 +44,29 @@ final class TrainingSession {
         return Math.round(correct * 100f / attempts);
     }
 
+    int streak() {
+        return streak;
+    }
+
     void reset() {
         correct = 0;
         attempts = 0;
+        streak = 0;
         lastMidi = -1;
         stableFrames = 0;
         armed = true;
         nextTarget();
     }
 
-    Difficulty difficulty() {
-        return difficulty;
+    Mode mode() {
+        return mode;
     }
 
-    void setDifficulty(Difficulty difficulty) {
-        if (this.difficulty == difficulty) {
+    void setMode(Mode mode) {
+        if (this.mode == mode) {
             return;
         }
-        this.difficulty = difficulty;
+        this.mode = mode;
         reset();
     }
 
@@ -93,6 +99,9 @@ final class TrainingSession {
         attempts++;
         if (correctNow) {
             correct++;
+            streak++;
+        } else {
+            streak = 0;
         }
 
         NoteName previousTarget = target;
@@ -113,7 +122,7 @@ final class TrainingSession {
     }
 
     private void nextTarget() {
-        int[] notes = difficulty.allowedMidiNotes;
+        int[] notes = mode.allowedMidiNotes;
         int midi = notes[random.nextInt(notes.length)];
         if (target != null && notes.length > 1 && midi == target.midiNumber) {
             int startIndex = indexOf(notes, midi);
@@ -146,15 +155,18 @@ final class TrainingSession {
         return 0;
     }
 
-    enum Difficulty {
-        BEGINNER("Anfaenger", new int[]{40, 41, 43, 45, 47, 48, 50, 52, 53, 55}),
-        MEDIUM("Mittel", range(40, 64)),
-        HARD("Schwer", range(40, 76));
+    enum Mode {
+        OPEN_STRINGS("Leere Saiten", new int[]{40, 45, 50, 55, 59, 64}),
+        C_MAJOR_START("C-Dur (Anfang)", new int[]{48, 50, 52, 53}),
+        C_MAJOR_FULL("C-Dur (komplett)", new int[]{48, 50, 52, 53, 55, 57, 59}),
+        COMMON_NOTES("Häufige Noten", new int[]{40, 41, 43, 45, 47, 48, 50, 52, 53, 55}),
+        FRETS_0_5("Bünde 0–5", range(40, 53)),
+        FRETS_0_12("Bünde 0–12", range(40, 64));
 
         final String label;
         final int[] allowedMidiNotes;
 
-        Difficulty(String label, int[] allowedMidiNotes) {
+        Mode(String label, int[] allowedMidiNotes) {
             this.label = label;
             this.allowedMidiNotes = allowedMidiNotes;
         }
